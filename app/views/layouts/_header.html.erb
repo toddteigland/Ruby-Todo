@@ -1,0 +1,43 @@
+<nav class="navbar navbar-expand-md d-flex flex-md-column justify-content-between justify-content-md-start nav nav-pills pl-2 navbar-dark bg-dark">
+  <%= link_to 'ToDo App', root_path, class: "navbar-brand mb-2 nav-link nav-item#{' active p-2' if current_page?(root_path)}" %>
+  <button class="navbar-toggler d-block d-md-none" type="button" data-toggle="popover" data-target="#navbarNav" data-placement="bottom" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div id="popover-content" class="d-none d-md-block">
+    <% if user_signed_in? %>
+      <div class="d-flex flex-column">
+        <div class="mb-auto">
+          <%= link_to tasks_path, class: "nav-link nav-item mb-2 p-2#{' active' if current_page?(tasks_path)}" do %>
+            Tasks
+            <turbo-frame id="incomplete_tasks_badge">
+              <span class="badge badge-light"><%= current_user.tasks.where(completed: false).count || 0 %></span>
+            </turbo-frame>
+          <% end %>
+          <%= link_to 'New Task', new_task_path, class: "nav-link nav-item mb-2 p-2#{' active' if current_page?(new_task_path)}" %>
+          <%= link_to completed_tasks_path, class: "nav-link nav-item mb-2 p-2#{' active' if current_page?(completed_tasks_path)}" do %>
+            Completed Tasks
+            <turbo-frame id="completed_tasks_badge">
+              <span class="badge badge-light"><%= current_user.tasks.where(completed: true).count || 0 %></span>
+            </turbo-frame>
+          <% end %>
+        </div>
+        <div class="mb-3" id="profile">
+          <p>
+            <a class="btn btn-primary" data-toggle="collapse" href="#Profile" role="button" aria-expanded="false" aria-controls="Profile">
+              <%= current_user.email %>
+            </a>
+          </p>
+          <div class="collapse" id="Profile">
+            <div class="card card-body bg-dark border-0">
+              <%= link_to 'Edit profile', edit_user_registration_path, class: "nav-link nav-item mb-2 p-2#{' active' if current_page?(edit_user_registration_path)}", class:"btn btn-lg btn-warning mb-2" %>
+              <%= link_to 'Sign out', destroy_user_session_path, method: :delete, class: "nav-link nav-item mb-2 p-2#{' active' if current_page?(destroy_user_session_path)}", class:"btn btn-sm btn-danger" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% else %>
+      <%= link_to 'Sign up', new_user_registration_path, class: "nav-link nav-item mb-2 p-2#{' active' if current_page?(new_user_registration_path)}" %>
+      <%= link_to 'Log in', new_user_session_path, class: "nav-link nav-item mb-2 p-2#{' active' if current_page?(new_user_session_path)}" %>
+    <% end %>
+  </div>
+</nav>

@@ -1,0 +1,88 @@
+<div class="card">
+  <div class="card-body">
+    <%= form_with(model: task) do |form| %>
+      <% if task.errors.any? %>
+        <div style="color: red">
+          <h2><%= pluralize(task.errors.count, "error") %> prohibited this task from being saved:</h2>
+          <ul>
+            <% task.errors.each do |error| %>
+              <li><%= error.full_message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+      <div class="form-group">
+        <%= form.text_field :task_title, class: "form-control", placeholder: "Task Title" %>
+      </div>
+      <div class="form-group">
+        <%= form.text_area :task_detail, class: "form-control", placeholder: "Task details", rows: 3 %>
+      </div>
+      <div class="card-title">
+        <h3>Completion date</h3>
+      </div>
+      <div class="form-group">
+        <%= form.date_field :date, class: "form-control" %>
+      </div>
+      <br/>
+      <div class="card-title">
+        <h3>Steps</h3>
+      </div>
+      <div id="sub-tasks" class="form-group">
+        <%= form.fields_for :sub_tasks do |sub_task_form| %>
+          <div class="sub-task-fields form-group form-inline">
+            <%= sub_task_form.text_field :name, placeholder: "Enter a step", class: "form-control mr-4" %>
+            <%= sub_task_form.hidden_field :_destroy %>
+            <%= link_to "Remove", '#', class: "btn btn-danger remove-sub-task" %>
+          </div>
+          <br/>
+        <% end %>
+      </div>
+      <div class="field">
+        <%= link_to "Add More Steps", '#', id: "add-sub-task", class: "btn btn-primary" %>
+      </div>
+      <br/>
+      <%= form.number_field :user_id, id: :task_user_id, class:"form-control", value: current_user.id, type: :hidden %>
+      <div>
+        <%= form.submit "Save Task", class: "btn btn-success" %>
+      </div>
+      <!-- Hidden template for new sub-tasks -->
+      <div id="new-sub-task-template" style="display: none;">
+        <%= form.fields_for :sub_tasks, SubTask.new, child_index: "new_sub_task" do |sub_task_form| %>
+          <%= render 'sub_task_fields', f: sub_task_form %>
+        <% end %>
+      </div>
+      <!-- Inline JavaScript -->
+      <script>
+        document.addEventListener("turbo:load", function() {
+          const subTasksDiv = document.getElementById("sub-tasks");
+          const addSubTaskLink = document.getElementById("add-sub-task");
+          const newSubTaskTemplate = document.getElementById("new-sub-task-template").innerHTML;
+
+          // Define event handler functions
+          function addSubTask(e) {
+            e.preventDefault();
+            const newId = new Date().getTime(); // Generate a unique ID based on timestamp
+            const newSubTaskHtml = newSubTaskTemplate.replace(/new_sub_task/g, newId); // Replace placeholder with unique ID
+            subTasksDiv.insertAdjacentHTML("beforeend", newSubTaskHtml); // Insert new sub-task HTML
+          }
+
+          function removeSubTask(e) {
+            if (e.target && e.target.classList.contains("remove-sub-task")) {
+              e.preventDefault();
+              const subTaskFields = e.target.closest(".sub-task-fields");
+              subTaskFields.querySelector('input[type="hidden"]').value = '1'; // Mark sub-task for removal
+              subTaskFields.style.display = 'none'; // Hide sub-task fields
+            }
+          }
+
+          // Remove and add event listeners to avoid duplicates
+          addSubTaskLink.removeEventListener("click", addSubTask);
+          addSubTaskLink.addEventListener("click", addSubTask);
+
+          subTasksDiv.removeEventListener("click", removeSubTask);
+          subTasksDiv.addEventListener("click", removeSubTask);
+        });
+      </script>
+    <% end %>
+  </div>
+</div>

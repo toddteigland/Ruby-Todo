@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  task_title: MyString
+  task_detail: MyString
+  time: 2024-08-22 10:09:44
+  date: 2024-08-22
+
+two:
+  task_title: MyString
+  task_detail: MyString
+  time: 2024-08-22 10:09:44
+  date: 2024-08-22

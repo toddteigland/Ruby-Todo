@@ -1,0 +1,30 @@
+<p style="color: green"><%= notice %></p>
+<div class="d-flex justify-content-center mb-4">
+  <h1>Tasks</h1>
+</div>
+<div id="tasks" class="container">
+  <% if @tasks.empty? %>
+    <!-- Show a button to create a new task -->
+    <div class="d-flex flex-column justify-content-center align-items-center">
+      <p>oof, such empty! Lets change that!</p>
+      <%= link_to "Create New Task", new_task_path, class: "btn btn-primary" %>
+    </div>
+  <% else %>
+    <!-- Display existing tasks -->
+    <div class="row justify-content-around my-3 row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      <% @tasks.where(completed: false).each do |task| %>
+        <div class="col">
+          <div class=" h-100">
+            <div class=" d-flex flex-column align-content-center">
+              <%= render task %>
+              <div class="mt-2">
+                <%= link_to "Edit this task", edit_task_path(task), class: "btn btn-outline-primary" %>
+                <%= link_to "Destroy this task", @task, method: :delete, class:"btn btn-sm btn-danger" %>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

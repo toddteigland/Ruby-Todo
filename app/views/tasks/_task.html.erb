@@ -1,0 +1,87 @@
+<div class="row">
+  <div id="<%= dom_id task %>" class="card" style="width: 18rem;">
+    <div class="card-header">
+      <h4 class="card-title"><%= task.task_title %></h4>
+      <p class="card-subtitle mb-2 text-muted"><%= task.task_detail %></p>
+    </div>
+    <div class="card-body">
+      <div class="card-title">
+        <h5>Goal Completion Date:</h5>
+      </div>
+      <p class="card-text"><%= task.date %></p>
+      <div class="card-title">
+        <h5>Steps:</h5>
+      </div>
+      <div class="list-group list-group-flush">
+        <% task.sub_tasks.each do |sub_task| %>
+          <div class="list-group-item" data-sub-task-id="<%= sub_task.id %>" data-completed="<%= sub_task.completed %>">
+            <p><%= sub_task.name %></p>
+            <button class="btn btn-sm <%= sub_task.completed ? 'btn-success' : 'btn-outline-success' %> complete-btn" data-task-id="<%= task.id %>" data-sub-task-id="<%= sub_task.id %>" data-completed="true">Complete</button>
+            <button class="btn btn-sm <%= sub_task.completed ? 'btn-outline-danger' : 'btn-danger' %> incomplete-btn" data-task-id="<%= task.id %>" data-sub-task-id="<%= sub_task.id %>" data-completed="false">Incomplete</button>
+            <!-- Hidden form for Turbo Stream -->
+            <%= form_with url: toggle_sub_task_complete_task_path(task.id, sub_task_id: sub_task.id), method: :patch, local: false, id: "toggle-sub-task-#{sub_task.id}-form" do |f| %>
+              <%= f.hidden_field :completed, value: sub_task.completed %>
+              <%= f.hidden_field :task_id, value: task.id %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+      <br/>
+      <div class="card-title">
+        <h5>Completion:</h5>
+      </div>
+      <div class="progress mb-2">
+        <div class="progress-bar <%= task.completion_percentage == 0 ? 'text-primary' : 'text-white' %>" role="progressbar" style="width: <%= task.completion_percentage %>%;" aria-valuenow="<%= task.completion_percentage %>" aria-valuemin="0" aria-valuemax="100"><%= task.completion_percentage %>%</div>
+      </div>
+      <div class="card-title">
+        <h5>Days Left:</h5>
+      </div>
+      <p class="card-text"><%= days_left(task.date) %> days</p>
+    </div>
+  </div>
+</div>
+<script>
+  (function() {
+    function attachSubTaskListeners() {
+      const taskElement = document.getElementById('<%= dom_id(task) %>');
+      taskElement.querySelectorAll('.list-group-item').forEach(item => {
+        const completeBtn = item.querySelector('.complete-btn');
+        const incompleteBtn = item.querySelector('.incomplete-btn');
+        const form = item.querySelector('form');
+        const completedField = form.querySelector('input[name="completed"]');
+
+        function updateButtonStyles(completed) {
+          if (completed) {
+            completeBtn.classList.remove('btn-outline-success');
+            completeBtn.classList.add('btn-success');
+            incompleteBtn.classList.remove('btn-danger');
+            incompleteBtn.classList.add('btn-outline-danger');
+          } else {
+            completeBtn.classList.remove('btn-success');
+            completeBtn.classList.add('btn-outline-success');
+            incompleteBtn.classList.remove('btn-outline-danger');
+            incompleteBtn.classList.add('btn-danger');
+          }
+        }
+
+        updateButtonStyles(item.dataset.completed === 'true');
+
+        completeBtn.addEventListener('click', function() {
+          completedField.value = 'true';
+          form.requestSubmit();
+        });
+
+        incompleteBtn.addEventListener('click', function() {
+          completedField.value = 'false';
+          form.requestSubmit();
+        });
+      });
+    }
+
+    // Call the function immediately
+    attachSubTaskListeners();
+
+    // Also attach it to turbo:render event
+    document.addEventListener("turbo:render", attachSubTaskListeners);
+  })();
+</script>

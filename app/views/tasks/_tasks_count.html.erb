@@ -1,0 +1,6 @@
+<turbo-frame id="incomplete_tasks_badge">
+  <span class="badge badge-light"><%= current_user.tasks.where(completed: false).count %></span>
+</turbo-frame>
+<turbo-frame id="completed_tasks_badge">
+  <span class="badge badge-light"><%= current_user.tasks.where(completed: true).count %></span>
+</turbo-frame>
